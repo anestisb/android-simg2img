@@ -1,7 +1,7 @@
 TARGET = simg2img
 LIBS = -lm -lz
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -O2 -g -Wall
 
 .PHONY: default all clean
 
