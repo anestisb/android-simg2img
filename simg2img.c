@@ -38,7 +38,7 @@ u8* zerobuf;
 
 void usage()
 {
-  fprintf(stderr, "Usage: simg2img <sparse_image_file> <raw_image_file>\n");
+  fprintf(stderr, "Usage: simg2img [sparse_image_file] [raw_image_file]\n");
 }
 
 static int read_all(int fd, void *buf, size_t len)
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 	u32 total_blocks = 0;
 	int ret;
 
-	if (argc != 3) {
+	if (argc > 3 || (argc > 1 && strcmp(argv[1], "--help") == 0)) {
 		usage();
 		exit(-1);
 	}
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	if (strcmp(argv[1], "-") == 0) {
+	if (argc < 2 || strcmp(argv[1], "-") == 0) {
 		in = STDIN_FILENO;
 	} else {
 		if ((in = open(argv[1], O_RDONLY)) == 0) {
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (strcmp(argv[2], "-") == 0) {
+	if (argc < 3 || strcmp(argv[2], "-") == 0) {
 		out = STDOUT_FILENO;
 	} else {
 		if ((out = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0666)) == 0) {
