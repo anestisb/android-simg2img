@@ -85,6 +85,50 @@ static int write_all(int fd, void *buf, size_t len)
 	return total;
 }
 
+static int skip_all(int fd, u64 len, int (*iofunc)(int, void *, size_t))
+{
+        int ret;
+
+        while (len > 0) {
+                ret = iofunc(fd, copybuf, len > COPY_BUF_SIZE ? COPY_BUF_SIZE : len);
+                if (ret < 0) {
+                        return -1;
+                }
+                len -= ret;
+        }
+        return 0;
+}
+
+static int skip_input(int fd, u64 len)
+{
+        if (lseek64(fd, len, SEEK_CUR) >= 0) {
+                return len;
+        }
+
+        if (skip_all(fd, len, &read_all) < 0) {
+                perror("Could not seek or read to skip input data");
+                exit(-1);
+        }
+
+        return len;
+}
+
+static int skip_output(int fd, u64 len)
+{
+        if (lseek64(fd, len, SEEK_CUR) >= 0) {
+                return len;
+        }
+
+        memset(copybuf, 0, len > COPY_BUF_SIZE ? COPY_BUF_SIZE : len);
+
+        if (skip_all(fd, len, &write_all) < 0) {
+                perror("Could not seek or write to skip output data");
+                exit(-1);
+        }
+
+        return len;
+}
+
 int process_raw_chunk(int in, int out, u32 blocks, u32 blk_sz, u32 *crc32)
 {
 	u64 len = (u64)blocks * blk_sz;
@@ -149,7 +193,7 @@ int process_skip_chunk(int out, u32 blocks, u32 blk_sz, u32 *crc32)
 	 */
 	u64 len = (u64)blocks * blk_sz;
 
-	lseek64(out, len, SEEK_CUR);
+	skip_output(out, len);
 
 	return blocks;
 }
@@ -233,7 +277,7 @@ int main(int argc, char *argv[])
 		/* Skip the remaining bytes in a header that is longer than
 		 * we expected.
 		 */
-		lseek64(in, sparse_header.file_hdr_sz - SPARSE_HEADER_LEN, SEEK_CUR);
+		skip_input(in, sparse_header.file_hdr_sz - SPARSE_HEADER_LEN);
 	}
 
 	if ( (zerobuf = malloc(sparse_header.blk_sz)) == 0) {
@@ -252,7 +296,7 @@ int main(int argc, char *argv[])
 			/* Skip the remaining bytes in a header that is longer than
 			 * we expected.
 			 */
-			lseek64(in, sparse_header.chunk_hdr_sz - CHUNK_HEADER_LEN, SEEK_CUR);
+			skip_input(in, sparse_header.chunk_hdr_sz - CHUNK_HEADER_LEN);
 		}
 
 		switch (chunk_header.chunk_type) {
