@@ -43,9 +43,9 @@
  */
 
 /* Code taken from FreeBSD 8 */
-#include "ext4_utils.h"
+#include <stdint.h>
 
-static u32 crc32_tab[] = {
+static uint32_t crc32_tab[] = {
         0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
         0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
         0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91, 0x1db71064, 0x6ab020f2,
@@ -98,10 +98,10 @@ static u32 crc32_tab[] = {
  * in sys/libkern.h, where it can be inlined.
  */
 
-u32 sparse_crc32(u32 crc_in, const void *buf, int size)
+uint32_t sparse_crc32(uint32_t crc_in, const void *buf, int size)
 {
-        const u8 *p = buf;
-        u32 crc;
+        const uint8_t *p = buf;
+        uint32_t crc;
 
         crc = crc_in ^ ~0U;
         while (size--)

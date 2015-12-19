@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef _LIBSPARSE_SPARSE_CRC32_H_
-#define _LIBSPARSE_SPARSE_CRC32_H_
+#include <sparse/sparse.h>
 
-#include <stdint.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <unistd.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void sparse_default_print(const char *fmt, ...)
+{
+  va_list argp;
 
-uint32_t sparse_crc32(uint32_t crc, const void *buf, size_t size);
-
-#ifdef __cplusplus
+  va_start(argp, fmt);
+  vfprintf(stderr, fmt, argp);
+  va_end(argp);
 }
-#endif
 
-#endif
+void (*sparse_print_error)(const char *fmt, ...) = sparse_default_print;
+void (*sparse_print_verbose)(const char *fmt, ...) = sparse_default_print;

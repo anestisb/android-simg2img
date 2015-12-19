@@ -1,2 +1,7 @@
+*.a
 *.o
+.depend
 simg2img
+simg2simg
+img2simg
+append2simg
