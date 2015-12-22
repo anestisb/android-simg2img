@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef _LIBSPARSE_SPARSE_CRC32_H_
-#define _LIBSPARSE_SPARSE_CRC32_H_
+#ifndef _LIBSPARSE_DEFS_H_
 
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
+#ifndef __unused
+#define __unused        __attribute__((__unused__))
 #endif
 
-uint32_t sparse_crc32(uint32_t crc, const void *buf, size_t size);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+#endif /* _LIBSPARSE_DEFS_H_ */
