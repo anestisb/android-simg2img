@@ -48,7 +48,8 @@ SRCS = \
 .PHONY: default all clean
 
 default: all
-all: $(LIB_NAME) simg2img simg2simg img2simg append2simg
+all: $(LIB_NAME) simg2img simg2simg append2simg
+#img2simg
 
 $(LIB_NAME): $(LIB_OBJS)
 		$(AR) rc $(SLIB) $(LIB_OBJS)
@@ -60,8 +61,8 @@ simg2img: $(SIMG2IMG_SRCS)
 simg2simg: $(SIMG2SIMG_SRCS)
 		$(CC) $(CFLAGS) $(LIB_INCS) -o simg2simg $< $(LDFLAGS)
 
-img2simg: $(IMG2SIMG_SRCS)$
-		$(CC) $(CFLAGS) $(LIB_INCS) -o img2simg $< $(LDFLAGS)
+#img2simg: $(IMG2SIMG_SRCS)$
+#		$(CC) $(CFLAGS) $(LIB_INCS) -o img2simg $< $(LDFLAGS)
 
 append2simg: $(APPEND2SIMG_SRCS)
 		$(CC) $(CFLAGS) $(LIB_INCS) -o append2simg $< $(LDFLAGS)
