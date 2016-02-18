@@ -4,7 +4,7 @@ DEP_CC  ?= gcc
 AR      ?= ar
 RANLIB  ?= ranlib
 STRIP   ?= strip
-CFLAGS  += -O2 -Wall -D_FILE_OFFSET_BITS=64
+CFLAGS  += -O2 -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1
 LDFLAGS += -lm -lz
 
 # libsparse
