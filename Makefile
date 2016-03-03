@@ -5,7 +5,6 @@ AR      ?= ar
 RANLIB  ?= ranlib
 STRIP   ?= strip
 CFLAGS  += -O2 -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1
-LDFLAGS += -lm -lz
 
 # libsparse
 LIB_NAME = sparse
@@ -20,7 +19,7 @@ LIB_SRCS = \
 LIB_OBJS = $(LIB_SRCS:%.c=%.o)
 LIB_INCS = -Iinclude
 
-LDFLAGS += -L. -l$(LIB_NAME)
+LDFLAGS += -L. -l$(LIB_NAME) -lm -lz
 
 # simg2img
 SIMG2IMG_SRCS = simg2img.c
