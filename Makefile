@@ -59,7 +59,7 @@ simg2img: $(SIMG2IMG_SRCS)
 simg2simg: $(SIMG2SIMG_SRCS)
 		$(CC) $(CFLAGS) $(LIB_INCS) -o simg2simg $< $(LDFLAGS)
 
-img2simg: $(IMG2SIMG_SRCS)$
+img2simg: $(IMG2SIMG_SRCS)
 		$(CC) $(CFLAGS) $(LIB_INCS) -o img2simg $< $(LDFLAGS)
 
 append2simg: $(APPEND2SIMG_SRCS)
