@@ -34,7 +34,7 @@
 #include "sparse_crc32.h"
 #include "sparse_format.h"
 
-#ifndef USE_MINGW
+#ifndef _WIN32
 #include <sys/mman.h>
 #define O_BINARY 0
 #else
@@ -49,7 +49,7 @@
 #endif
 
 #define min(a, b) \
-  ({ typeof(a) _a = (a); typeof(b) _b = (b); (_a < _b) ? _a : _b; })
+	({ typeof(a) _a = (a); typeof(b) _b = (b); (_a < _b) ? _a : _b; })
 
 #define SPARSE_HEADER_MAJOR_VER 1
 #define SPARSE_HEADER_MINOR_VER 0
@@ -57,13 +57,13 @@
 #define CHUNK_HEADER_LEN (sizeof(chunk_header_t))
 
 #define container_of(inner, outer_t, elem) \
-  ((outer_t *)((char *)inner - offsetof(outer_t, elem)))
+	((outer_t *)((char *)(inner) - offsetof(outer_t, elem)))
 
 struct output_file_ops {
     int (*open) (struct output_file *, int fd);
     int (*skip) (struct output_file *, int64_t);
     int (*pad) (struct output_file *, int64_t);
-    int (*write) (struct output_file *, void *, int);
+    int (*write) (struct output_file *, void *, size_t);
     void (*close) (struct output_file *);
 };
 
@@ -94,7 +94,7 @@ struct output_file_gz {
 };
 
 #define to_output_file_gz(_o) \
-  container_of((_o), struct output_file_gz, out)
+	container_of((_o), struct output_file_gz, out)
 
 struct output_file_normal {
     struct output_file out;
@@ -102,7 +102,7 @@ struct output_file_normal {
 };
 
 #define to_output_file_normal(_o) \
-  container_of((_o), struct output_file_normal, out)
+	container_of((_o), struct output_file_normal, out)
 
 struct output_file_callback {
     struct output_file out;
@@ -111,7 +111,7 @@ struct output_file_callback {
 };
 
 #define to_output_file_callback(_o) \
-  container_of((_o), struct output_file_callback, out)
+	container_of((_o), struct output_file_callback, out)
 
 static int file_open(struct output_file *out, int fd)
 {
@@ -147,18 +147,23 @@ static int file_pad(struct output_file *out, int64_t len)
     return 0;
 }
 
-static int file_write(struct output_file *out, void *data, int len)
+static int file_write(struct output_file *out, void *data, size_t len)
 {
-    int ret;
+    ssize_t ret;
     struct output_file_normal *outn = to_output_file_normal(out);
 
-    ret = write(outn->fd, data, len);
-    if (ret < 0) {
-        error_errno("write");
-        return -1;
-    } else if (ret < len) {
-        error("incomplete write");
-        return -1;
+    while (len > 0) {
+        ret = write(outn->fd, data, len);
+        if (ret < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            error_errno("write");
+            return -1;
+        }
+
+        data = (char *)data + ret;
+        len -= ret;
     }
 
     return 0;
@@ -229,18 +234,19 @@ static int gz_file_pad(struct output_file *out, int64_t len)
     return 0;
 }
 
-static int gz_file_write(struct output_file *out, void *data, int len)
+static int gz_file_write(struct output_file *out, void *data, size_t len)
 {
     int ret;
     struct output_file_gz *outgz = to_output_file_gz(out);
 
-    ret = gzwrite(outgz->gz_fd, data, len);
-    if (ret < 0) {
-        error_errno("gzwrite");
-        return -1;
-    } else if (ret < len) {
-        error("incomplete gzwrite");
-        return -1;
+    while (len > 0) {
+        ret = gzwrite(outgz->gz_fd, data, min(len, (unsigned int)INT_MAX));
+        if (ret == 0) {
+            error("gzwrite %s", gzerror(outgz->gz_fd, NULL));
+            return -1;
+        }
+        len -= ret;
+        data = (char *)data + ret;
     }
 
     return 0;
@@ -290,7 +296,7 @@ static int callback_file_pad(struct output_file *out __unused, int64_t len __unu
     return -1;
 }
 
-static int callback_file_write(struct output_file *out, void *data, int len)
+static int callback_file_write(struct output_file *out, void *data, size_t len)
 {
     struct output_file_callback *outc = to_output_file_callback(out);
 
@@ -689,14 +695,16 @@ int write_fd_chunk(struct output_file *out, unsigned int len, int fd, int64_t of
     int ret;
     int64_t aligned_offset;
     int aligned_diff;
-    int buffer_size;
+    uint64_t buffer_size;
     char *ptr;
 
     aligned_offset = offset & ~(4096 - 1);
     aligned_diff = offset - aligned_offset;
-    buffer_size = len + aligned_diff;
+    buffer_size = (uint64_t) len + (uint64_t) aligned_diff;
 
-#ifndef USE_MINGW
+#ifndef _WIN32
+    if (buffer_size > SIZE_MAX)
+        return -E2BIG;
     char *data = mmap64(NULL, buffer_size, PROT_READ, MAP_SHARED, fd,
                         aligned_offset);
     if (data == MAP_FAILED) {
@@ -724,7 +732,7 @@ int write_fd_chunk(struct output_file *out, unsigned int len, int fd, int64_t of
 
     ret = out->sparse_ops->write_data_chunk(out, len, ptr);
 
-#ifndef USE_MINGW
+#ifndef _WIN32
     munmap(data, buffer_size);
 #else
     free(data);
