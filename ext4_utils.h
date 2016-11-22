@@ -45,15 +45,13 @@ extern "C" {
 #endif
 
 #ifdef __BIONIC__
-extern void*  __mmap2(void *, size_t, int, int, int, off_t);
-static inline void *mmap64(void *addr, size_t length, int prot, int flags,
-        int fd, off64_t offset)
-{
-    return __mmap2(addr, length, prot, flags, fd, offset >> 12);
-}
+    extern void *__mmap2(void *, size_t, int, int, int, off_t);
+    static inline void *mmap64(void *addr, size_t length, int prot, int flags,
+                               int fd, off64_t offset) {
+        return __mmap2(addr, length, prot, flags, fd, offset >> 12);
+    }
 #endif
-
-extern int force;
+    extern int force;
 
 #define warn(fmt, args...) do { fprintf(stderr, "warning: %s: " fmt "\n", __func__, ## args); } while (0)
 #define error(fmt, args...) do { fprintf(stderr, "error: %s: " fmt "\n", __func__, ## args); if (!force) longjmp(setjmp_env, EXIT_FAILURE); } while (0)
@@ -64,7 +62,7 @@ extern int force;
 #define EXT4_SUPER_MAGIC 0xEF53
 #define EXT4_JNL_BACKUP_BLOCKS 1
 
-#ifndef min /* already defined by windows.h */
+#ifndef min                     /* already defined by windows.h */
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
@@ -84,87 +82,85 @@ extern int force;
 #define __u16 u16
 #define __u8 u8
 
-typedef unsigned long long u64;
-typedef signed long long s64;
-typedef unsigned int u32;
-typedef unsigned short int u16;
-typedef unsigned char u8;
+    typedef unsigned long long u64;
+    typedef signed long long s64;
+    typedef unsigned int u32;
+    typedef unsigned short int u16;
+    typedef unsigned char u8;
 
-struct block_group_info;
+    struct block_group_info;
 
-struct ext2_group_desc {
-	__le32 bg_block_bitmap;
-	__le32 bg_inode_bitmap;
-	__le32 bg_inode_table;
-	__le16 bg_free_blocks_count;
-	__le16 bg_free_inodes_count;
-	__le16 bg_used_dirs_count;
-	__le16 bg_pad;
-	__le32 bg_reserved[3];
-};
+    struct ext2_group_desc {
+        __le32 bg_block_bitmap;
+        __le32 bg_inode_bitmap;
+        __le32 bg_inode_table;
+        __le16 bg_free_blocks_count;
+        __le16 bg_free_inodes_count;
+        __le16 bg_used_dirs_count;
+        __le16 bg_pad;
+        __le32 bg_reserved[3];
+    };
 
-struct fs_info {
-	s64 len;	/* If set to 0, ask the block device for the size,
-			 * if less than 0, reserve that much space at the
-			 * end of the partition, else use the size given. */
-	u32 block_size;
-	u32 blocks_per_group;
-	u32 inodes_per_group;
-	u32 inode_size;
-	u32 inodes;
-	u32 journal_blocks;
-	u16 feat_ro_compat;
-	u16 feat_compat;
-	u16 feat_incompat;
-	u32 bg_desc_reserve_blocks;
-	const char *label;
-	u8 no_journal;
-};
+    struct fs_info {
+        s64 len;                /* If set to 0, ask the block device for the size,
+                                 * if less than 0, reserve that much space at the
+                                 * end of the partition, else use the size given. */
+        u32 block_size;
+        u32 blocks_per_group;
+        u32 inodes_per_group;
+        u32 inode_size;
+        u32 inodes;
+        u32 journal_blocks;
+        u16 feat_ro_compat;
+        u16 feat_compat;
+        u16 feat_incompat;
+        u32 bg_desc_reserve_blocks;
+        const char *label;
+        u8 no_journal;
+    };
 
-struct fs_aux_info {
-	struct ext4_super_block *sb;
-	struct ext4_super_block **backup_sb;
-	struct ext2_group_desc *bg_desc;
-	struct block_group_info *bgs;
-	u32 first_data_block;
-	u64 len_blocks;
-	u32 inode_table_blocks;
-	u32 groups;
-	u32 bg_desc_blocks;
-	u32 default_i_flags;
-	u32 blocks_per_ind;
-	u32 blocks_per_dind;
-	u32 blocks_per_tind;
-};
+    struct fs_aux_info {
+        struct ext4_super_block *sb;
+        struct ext4_super_block **backup_sb;
+        struct ext2_group_desc *bg_desc;
+        struct block_group_info *bgs;
+        u32 first_data_block;
+        u64 len_blocks;
+        u32 inode_table_blocks;
+        u32 groups;
+        u32 bg_desc_blocks;
+        u32 default_i_flags;
+        u32 blocks_per_ind;
+        u32 blocks_per_dind;
+        u32 blocks_per_tind;
+    };
 
-extern struct fs_info info;
-extern struct fs_aux_info aux_info;
+    extern struct fs_info info;
+    extern struct fs_aux_info aux_info;
 
-extern jmp_buf setjmp_env;
+    extern jmp_buf setjmp_env;
 
-static inline int log_2(int j)
-{
-	int i;
+    static inline int log_2(int j) {
+        int i;
 
-	for (i = 0; j > 0; i++)
-		j >>= 1;
+        for (i = 0; j > 0; i++)
+            j >>= 1;
 
-	return i - 1;
-}
+        return i - 1;
+    }
 
-int ext4_bg_has_super_block(int bg);
-void write_ext4_image(int fd, int gz, int sparse, int crc,
-		int wipe);
-void ext4_create_fs_aux_info(void);
-void ext4_free_fs_aux_info(void);
-void ext4_fill_in_sb(void);
-void ext4_create_resize_inode(void);
-void ext4_create_journal_inode(void);
-void ext4_update_free(void);
-void ext4_queue_sb(void);
-u64 get_file_size(int fd);
-u64 parse_num(const char *arg);
-void ext4_parse_sb(struct ext4_super_block *sb);
+    int ext4_bg_has_super_block(int bg);
+    void write_ext4_image(int fd, int gz, int sparse, int crc, int wipe);
+    void ext4_create_fs_aux_info(void);
+    void ext4_free_fs_aux_info(void);
+    void ext4_fill_in_sb(void);
+    void ext4_create_resize_inode(void);
+    void ext4_create_journal_inode(void);
+    void ext4_update_free(void);
+    void ext4_queue_sb(void);
+    u64 get_file_size(int fd);
+    u64 parse_num(const char *arg);
+    void ext4_parse_sb(struct ext4_super_block *sb);
 
 #ifdef __cplusplus
 }

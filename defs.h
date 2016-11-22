@@ -20,4 +20,4 @@
 #define __unused        __attribute__((__unused__))
 #endif
 
-#endif /* _LIBSPARSE_DEFS_H_ */
+#endif                          /* _LIBSPARSE_DEFS_H_ */

@@ -78,3 +78,6 @@ endif
 .depend:
 		@$(RM) .depend
 		@$(foreach SRC, $(SRCS), $(DEP_CC) $(LIB_INCS) $(SRC) $(CFLAGS) -MT $(SRC:%.c=%.o) -MM >> .depend;)
+
+indent:
+		indent -linux -l100 -lc100 -nut -i4 *.c *.h; rm -f *~
