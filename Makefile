@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+PREFIX  ?= /usr/local
 
 CC      ?= gcc
 LD      ?= gcc
@@ -37,6 +38,9 @@ LIB_INCS = -Iinclude
 
 LDFLAGS += -L. -l$(LIB_NAME) -lm -lz
 
+BINS = simg2img simg2simg img2simg append2simg
+HEADERS = include/sparse/sparse.h
+
 # simg2img
 SIMG2IMG_SRCS = simg2img.c
 SIMG2IMG_OBJS = $(SIMG2IMG_SRCS:%.c=%.o)
@@ -60,10 +64,16 @@ SRCS = \
     $(APPEND2SIMG_SRCS) \
     $(LIB_SRCS)
 
-.PHONY: default all clean
+.PHONY: default all clean install
 
 default: all
 all: $(LIB_NAME) simg2img simg2simg img2simg append2simg
+
+install: all
+	install -d $(PREFIX)/bin $(PREFIX)/lib $(PREFIX)/include/sparse
+	install -m 0755 $(BINS) $(PREFIX)/bin
+	install -m 0755 $(SLIB) $(PREFIX)/lib
+	install -m 0644 $(HEADERS) $(PREFIX)/include/sparse
 
 $(LIB_NAME): $(LIB_OBJS)
 		$(AR) rc $(SLIB) $(LIB_OBJS)
