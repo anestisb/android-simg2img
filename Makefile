@@ -79,16 +79,16 @@ $(LIB_NAME): $(LIB_OBJS)
 		$(AR) rc $(SLIB) $(LIB_OBJS)
 		$(RANLIB) $(SLIB)
 
-simg2img: $(SIMG2IMG_SRCS)
+simg2img: $(SIMG2IMG_SRCS) $(LIB_NAME)
 		$(CC) $(CFLAGS) $(LIB_INCS) -o simg2img $< $(LDFLAGS)
 
-simg2simg: $(SIMG2SIMG_SRCS)
+simg2simg: $(SIMG2SIMG_SRCS) $(LIB_NAME)
 		$(CC) $(CFLAGS) $(LIB_INCS) -o simg2simg $< $(LDFLAGS)
 
-img2simg: $(IMG2SIMG_SRCS)
+img2simg: $(IMG2SIMG_SRCS) $(LIB_NAME)
 		$(CC) $(CFLAGS) $(LIB_INCS) -o img2simg $< $(LDFLAGS)
 
-append2simg: $(APPEND2SIMG_SRCS)
+append2simg: $(APPEND2SIMG_SRCS) $(LIB_NAME)
 		$(CC) $(CFLAGS) $(LIB_INCS) -o append2simg $< $(LDFLAGS)
 
 %.o: %.c .depend
