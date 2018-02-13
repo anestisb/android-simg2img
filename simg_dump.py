@@ -48,7 +48,7 @@ def main():
     opts, args = getopt.getopt(sys.argv[1:],
                                "vsc:",
                                ["verbose", "showhash", "csvfile"])
-  except getopt.GetoptError, e:
+  except getopt.GetoptError as e:
     print(e)
     usage(me)
   for o, a in opts:
@@ -226,6 +226,12 @@ def main():
     csvfile.close()
 
   sys.exit(0)
+
+# Python 3 shim
+try:
+    xrange
+except NameError:
+    xrange = range
 
 if __name__ == "__main__":
   main()
