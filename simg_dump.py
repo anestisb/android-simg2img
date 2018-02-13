@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from __future__ import print_function
+import binascii
 import csv
 import getopt
 import hashlib
@@ -94,12 +95,12 @@ def main():
       print("%s: %s: I only know about version 1.0, but this is version %u.%u"
             % (me, path, major_version, minor_version))
       continue
-    if file_hdr_sz != 28:
-      print("%s: %s: The file header size was expected to be 28, but is %u."
+    if file_hdr_sz < 28:
+      print("%s: %s: The file header size was expected to be at least 28, but is %u."
             % (me, path, file_hdr_sz))
       continue
-    if chunk_hdr_sz != 12:
-      print("%s: %s: The chunk header size was expected to be 12, but is %u."
+    if chunk_hdr_sz < 12:
+      print("%s: %s: The chunk header size was expected to be at least 12, but is %u."
             % (me, path, chunk_hdr_sz))
       continue
 
@@ -108,6 +109,11 @@ def main():
 
     if image_checksum != 0:
       print("checksum=0x%08X" % (image_checksum))
+
+    if file_hdr_sz > 28:
+      header_extra = FH.read(file_hdr_sz - 28)
+      print("%s: Header extra bytes: %s"
+            % (me, binascii.hexlify(header_extra)))
 
     if not output:
       continue
@@ -127,7 +133,7 @@ def main():
       chunk_type = header[0]
       chunk_sz = header[2]
       total_sz = header[3]
-      data_sz = total_sz - 12
+      data_sz = total_sz - chunk_hdr_sz
       curhash = ""
       curtype = ""
       curpos = FH.tell()
@@ -135,6 +141,10 @@ def main():
       if verbose > 0:
         print("%4u %10u %10u %7u %7u" % (i, curpos, data_sz, offset, chunk_sz),
               end=" ")
+        if chunk_hdr_sz > 12:
+          header_extra = FH.read(chunk_hdr_sz - 12)
+          print("[Extra bytes: %s]"
+                % (binascii.hexlify(header_extra)), end=" ")
 
       if chunk_type == 0xCAC1:
         if data_sz != (chunk_sz * blk_sz):
