@@ -27,3 +27,12 @@ Once you've done that run the following command to build simg2img:
 ```
 CFLAGS=-DUSE_MINGW LDFLAGS=-lasprintf mingw32-make
 ```
+
+Linux
+------
+
+If zlib.h is missing then install it using
+
+Ubuntu: ```sudo apt-get install libz-dev```
+
+Fedora: ```sudo dnf install libz-devel```
