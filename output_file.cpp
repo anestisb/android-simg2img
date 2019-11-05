@@ -595,8 +595,8 @@ struct output_file* output_file_open_callback(int (*write)(void*, const void*, s
   int ret;
   struct output_file_callback* outc;
 
-  outc =
-      reinterpret_cast<struct output_file_callback*>(calloc(1, sizeof(struct output_file_callback)));
+  outc = reinterpret_cast<struct output_file_callback*>(
+      calloc(1, sizeof(struct output_file_callback)));
   if (!outc) {
     error_errno("malloc struct outc");
     return nullptr;
@@ -663,8 +663,8 @@ int write_fd_chunk(struct output_file* out, unsigned int len, int fd, int64_t of
 
 #ifndef _WIN32
   if (buffer_size > SIZE_MAX) return -E2BIG;
-  char* data =
-      reinterpret_cast<char*>(mmap64(nullptr, buffer_size, PROT_READ, MAP_SHARED, fd, aligned_offset));
+  char* data = reinterpret_cast<char*>(
+      mmap64(nullptr, buffer_size, PROT_READ, MAP_SHARED, fd, aligned_offset));
   if (data == MAP_FAILED) {
     return -errno;
   }

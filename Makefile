@@ -106,5 +106,5 @@ endif
 		@$(RM) .depend
 		@$(foreach SRC, $(SRCS), $(DEP_CXX) $(LIB_INCS) $(SRC) $(CFLAGS) -MT $(SRC:%.c=%.o) -MM >> .depend;)
 
-indent:
-		indent -linux -l100 -lc100 -nut -i4 *.cpp *.h; rm -f *~
+format:
+		find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -style=file -i {} \;
