@@ -15,26 +15,27 @@
 #
 PREFIX  ?= /usr/local
 
-CC      ?= gcc
-LD      ?= gcc
-DEP_CC  ?= gcc
-AR      ?= ar
-RANLIB  ?= ranlib
-STRIP   ?= strip
-CFLAGS  += -O2 -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1
+CXX      ?= g++
+LD       ?= g++
+DEP_CXX  ?= g++
+AR       ?= ar
+RANLIB   ?= ranlib
+STRIP    ?= strip
+CPPFLAGS += -std=gnu++17 -O2 -W -Wall -Werror -Wextra
 
 # libsparse
 LIB_NAME = sparse
 SLIB     = lib$(LIB_NAME).a
 LIB_SRCS = \
-    backed_block.c \
-    output_file.c \
-    sparse.c \
-    sparse_crc32.c \
-    sparse_err.c \
-    sparse_read.c
-LIB_OBJS = $(LIB_SRCS:%.c=%.o)
-LIB_INCS = -Iinclude
+    backed_block.cpp \
+    output_file.cpp \
+    sparse.cpp \
+    sparse_crc32.cpp \
+    sparse_err.cpp \
+    sparse_read.cpp \
+    android-base/stringprintf.cpp
+LIB_OBJS = $(LIB_SRCS:%.cpp=%.o)
+LIB_INCS = -Iinclude -Iandroid-base/include
 
 LDFLAGS += -L. -l$(LIB_NAME) -lm -lz
 
@@ -42,20 +43,20 @@ BINS = simg2img simg2simg img2simg append2simg
 HEADERS = include/sparse/sparse.h
 
 # simg2img
-SIMG2IMG_SRCS = simg2img.c
-SIMG2IMG_OBJS = $(SIMG2IMG_SRCS:%.c=%.o)
+SIMG2IMG_SRCS = simg2img.cpp
+SIMG2IMG_OBJS = $(SIMG2IMG_SRCS:%.cpp=%.o)
 
 # simg2simg
-SIMG2SIMG_SRCS = simg2simg.c
-SIMG2SIMG_OBJS = $(SIMG2SIMG_SRCS:%.c=%.o)
+SIMG2SIMG_SRCS = simg2simg.cpp
+SIMG2SIMG_OBJS = $(SIMG2SIMG_SRCS:%.cpp=%.o)
 
 # img2simg
-IMG2SIMG_SRCS = $(LIBSPARSE_SRCS) img2simg.c
-IMG2SIMG_OBJS = $(IMG2SIMG_SRCS:%.c=%.o)
+IMG2SIMG_SRCS = img2simg.cpp
+IMG2SIMG_OBJS = $(IMG2SIMG_SRCS:%.cpp=%.o)
 
 # append2simg
-APPEND2SIMG_SRCS = $(LIBSPARSE_SRCS) append2simg.c
-APPEND2SIMG_OBJS = $(APPEND2SIMG_SRCS:%.c=%.o)
+APPEND2SIMG_SRCS = append2simg.cpp
+APPEND2SIMG_OBJS = $(APPEND2SIMG_SRCS:%.cpp=%.o)
 
 SRCS = \
     $(SIMG2IMG_SRCS) \
@@ -80,19 +81,19 @@ $(LIB_NAME): $(LIB_OBJS)
 		$(RANLIB) $(SLIB)
 
 simg2img: $(SIMG2IMG_SRCS) $(LIB_NAME)
-		$(CC) $(CFLAGS) $(LIB_INCS) -o simg2img $< $(LDFLAGS)
+		$(CXX) $(CPPFLAGS) $(LIB_INCS) -o simg2img $< $(LDFLAGS)
 
 simg2simg: $(SIMG2SIMG_SRCS) $(LIB_NAME)
-		$(CC) $(CFLAGS) $(LIB_INCS) -o simg2simg $< $(LDFLAGS)
+		$(CXX) $(CPPFLAGS) $(LIB_INCS) -o simg2simg $< $(LDFLAGS)
 
 img2simg: $(IMG2SIMG_SRCS) $(LIB_NAME)
-		$(CC) $(CFLAGS) $(LIB_INCS) -o img2simg $< $(LDFLAGS)
+		$(CXX) $(CPPFLAGS) $(LIB_INCS) -o img2simg $< $(LDFLAGS)
 
 append2simg: $(APPEND2SIMG_SRCS) $(LIB_NAME)
-		$(CC) $(CFLAGS) $(LIB_INCS) -o append2simg $< $(LDFLAGS)
+		$(CXX) $(CPPFLAGS) $(LIB_INCS) -o append2simg $< $(LDFLAGS)
 
-%.o: %.c .depend
-		$(CC) -c $(CFLAGS) $(LIB_INCS) $< -o $@
+%.o: %.cpp .depend
+		$(CXX) $(CPPFLAGS) $(LIB_INCS) -c $< -o $@
 
 clean:
 		$(RM) -f *.o *.a simg2img simg2simg img2simg append2simg .depend
@@ -103,7 +104,7 @@ endif
 
 .depend:
 		@$(RM) .depend
-		@$(foreach SRC, $(SRCS), $(DEP_CC) $(LIB_INCS) $(SRC) $(CFLAGS) -MT $(SRC:%.c=%.o) -MM >> .depend;)
+		@$(foreach SRC, $(SRCS), $(DEP_CXX) $(LIB_INCS) $(SRC) $(CFLAGS) -MT $(SRC:%.c=%.o) -MM >> .depend;)
 
 indent:
-		indent -linux -l100 -lc100 -nut -i4 *.c *.h; rm -f *~
+		indent -linux -l100 -lc100 -nut -i4 *.cpp *.h; rm -f *~

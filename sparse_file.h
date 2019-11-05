@@ -17,15 +17,23 @@
 #ifndef _LIBSPARSE_SPARSE_FILE_H_
 #define _LIBSPARSE_SPARSE_FILE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <sparse/sparse.h>
 
 struct sparse_file {
-    unsigned int block_size;
-    int64_t len;
-    bool verbose;
+  unsigned int block_size;
+  int64_t len;
+  bool verbose;
 
-    struct backed_block_list *backed_block_list;
-    struct output_file *out;
+  struct backed_block_list* backed_block_list;
+  struct output_file* out;
 };
 
-#endif                          /* _LIBSPARSE_SPARSE_FILE_H_ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _LIBSPARSE_SPARSE_FILE_H_ */
