@@ -37,7 +37,7 @@
 #ifndef _WIN32
 #include <sys/mman.h>
 #define O_BINARY 0
-#else
+#elif defined(_WIN32) || defined(__CYGWIN___)
 #define ftruncate64 ftruncate
 #endif
 
@@ -652,16 +652,17 @@ int write_fill_chunk(struct output_file* out, unsigned int len, uint32_t fill_va
 
 int write_fd_chunk(struct output_file* out, unsigned int len, int fd, int64_t offset) {
   int ret;
+  char* ptr;
+
+#ifndef _WIN32
   int64_t aligned_offset;
   int aligned_diff;
   uint64_t buffer_size;
-  char* ptr;
 
   aligned_offset = offset & ~(4096 - 1);
   aligned_diff = offset - aligned_offset;
   buffer_size = (uint64_t)len + (uint64_t)aligned_diff;
 
-#ifndef _WIN32
   if (buffer_size > SIZE_MAX) return -E2BIG;
   char* data = reinterpret_cast<char*>(
       mmap64(nullptr, buffer_size, PROT_READ, MAP_SHARED, fd, aligned_offset));
@@ -669,7 +670,7 @@ int write_fd_chunk(struct output_file* out, unsigned int len, int fd, int64_t of
     return -errno;
   }
   ptr = data + aligned_diff;
-#else
+#elif defined(_WIN32) || defined(__CYGWIN___)
   off64_t pos;
   char* data = reinterpret_cast<char*>(malloc(len));
   if (!data) {
