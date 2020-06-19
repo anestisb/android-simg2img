@@ -34,9 +34,6 @@
 
 #if defined(__APPLE__) && defined(__MACH__)
 #define lseek64 lseek
-#endif
-#if defined(__APPLE__) && defined(__MACH__)
-#define lseek64 lseek
 #define off64_t off_t
 #endif
 
