@@ -17,7 +17,7 @@ PREFIX  ?= /usr/local
 
 CXX      ?= g++
 LD       ?= g++
-DEP_CXX  ?= g++
+DEP_CXX  ?= $(CXX)
 AR       ?= ar
 RANLIB   ?= ranlib
 STRIP    ?= strip
