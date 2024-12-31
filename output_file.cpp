@@ -657,7 +657,7 @@ int write_fd_chunk(struct output_file* out, unsigned int len, int fd, int64_t of
   uint64_t buffer_size;
   char* ptr;
 
-  aligned_offset = offset & ~(4096 - 1);
+  aligned_offset = offset & ~(sysconf(_SC_PAGESIZE) - 1);
   aligned_diff = offset - aligned_offset;
   buffer_size = (uint64_t)len + (uint64_t)aligned_diff;
 
