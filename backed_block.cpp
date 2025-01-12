@@ -111,7 +111,7 @@ void backed_block_destroy(struct backed_block* bb) {
 
 struct backed_block_list* backed_block_list_new(unsigned int block_size) {
   struct backed_block_list* b =
-      reinterpret_cast<backed_block_list*>(calloc(sizeof(struct backed_block_list), 1));
+      reinterpret_cast<backed_block_list*>(calloc(1, sizeof(struct backed_block_list)));
   b->block_size = block_size;
   return b;
 }
