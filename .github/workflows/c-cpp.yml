@@ -1,0 +1,28 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: make
+      run: make
+
+      
+    - name: Create artifacts directory
+      run: mkdir -p bin
+      
+    - name: Move artifacts
+      run: mv append2simg bin/append2simg && mv simg2img bin/simg2img && mv simg2simg bin/simg2simg
+    - name: upload
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        path: bin/
