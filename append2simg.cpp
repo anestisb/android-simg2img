@@ -27,6 +27,7 @@
 #include <sparse/sparse.h>
 #include "backed_block.h"
 #include "sparse_file.h"
+#include <stdarg.h>  // Include for va_start, va_end, etc.
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -37,6 +38,31 @@
 #define off64_t off_t
 #endif
 
+// Replace the custom asprintf with snprintf
+int custom_asprintf(char **strp, const char *fmt, ...) {
+    va_list ap;
+    int len;
+
+    va_start(ap, fmt);  // Now properly declared with <stdarg.h>
+    len = vsnprintf(NULL, 0, fmt, ap);
+    va_end(ap);  // Properly ending the va_list
+
+    if (len < 0) {
+        return -1; // Error in formatting
+    }
+
+    *strp = (char*)malloc(len + 1);
+    if (!*strp) {
+        return -1; // Memory allocation failure
+    }
+
+    va_start(ap, fmt);  // Re-initialize va_list for actual formatting
+    len = vsnprintf(*strp, len + 1, fmt, ap);
+    va_end(ap);  // End the va_list again
+
+    return len;
+}
+
 void usage() {
   fprintf(stderr, "Usage: append2simg <output> <input>\n");
 }
@@ -46,14 +72,14 @@ int main(int argc, char* argv[]) {
   int output_block;
   char* output_path;
   struct sparse_file* sparse_output;
-
+    
   int input;
   char* input_path;
   off64_t input_len;
-
+    
   int tmp_fd;
   char* tmp_path;
-
+    
   int ret;
 
   if (argc == 3) {
@@ -64,7 +90,7 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-  ret = asprintf(&tmp_path, "%s.append2simg", output_path);
+  ret = custom_asprintf(&tmp_path, "%s.append2simg", output_path);
   if (ret < 0) {
     fprintf(stderr, "Couldn't allocate filename\n");
     exit(-1);
@@ -129,6 +155,6 @@ int main(int argc, char* argv[]) {
   }
 
   free(tmp_path);
-
+    
   exit(0);
 }
