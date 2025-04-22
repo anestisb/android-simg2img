@@ -38,6 +38,7 @@
 #include <sys/mman.h>
 #define O_BINARY 0
 #else
+#include <sysinfoapi.h>
 #define ftruncate64 ftruncate
 #endif
 
@@ -50,8 +51,8 @@
 
 #define min(a, b)        \
   ({                     \
-    typeof(a) _a = (a);  \
-    typeof(b) _b = (b);  \
+    decltype(a) _a = (a);  \
+    decltype(b) _b = (b);  \
     (_a < _b) ? _a : _b; \
   })
 
@@ -656,8 +657,13 @@ int write_fd_chunk(struct output_file* out, unsigned int len, int fd, int64_t of
   int aligned_diff;
   uint64_t buffer_size;
   char* ptr;
-
+#ifdef _WIN32
+  SYSTEM_INFO si;
+  GetSystemInfo(&si);
+  aligned_offset = offset & ~(si.dwPageSize - 1);
+#else
   aligned_offset = offset & ~(sysconf(_SC_PAGESIZE) - 1);
+#endif
   aligned_diff = offset - aligned_offset;
   buffer_size = (uint64_t)len + (uint64_t)aligned_diff;
 
