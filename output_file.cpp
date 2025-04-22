@@ -26,7 +26,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <zlib.h>
 
 #include "defs.h"
@@ -46,6 +48,13 @@
 #define ftruncate64 ftruncate
 #define mmap64 mmap
 #define off64_t off_t
+#endif
+
+// Define PAGESIZE for cross-platform compatibility
+#ifdef _WIN32
+#define PAGESIZE 4096
+#else
+#define PAGESIZE sysconf(_SC_PAGESIZE)
 #endif
 
 #define min(a, b)        \
@@ -652,16 +661,12 @@ int write_fill_chunk(struct output_file* out, unsigned int len, uint32_t fill_va
 
 int write_fd_chunk(struct output_file* out, unsigned int len, int fd, int64_t offset) {
   int ret;
-  int64_t aligned_offset;
-  int aligned_diff;
-  uint64_t buffer_size;
   char* ptr;
 
-  aligned_offset = offset & ~(sysconf(_SC_PAGESIZE) - 1);
-  aligned_diff = offset - aligned_offset;
-  buffer_size = (uint64_t)len + (uint64_t)aligned_diff;
-
 #ifndef _WIN32
+  int64_t aligned_offset = offset & ~(PAGESIZE - 1);
+  int aligned_diff = offset - aligned_offset;
+  uint64_t buffer_size = (uint64_t)len + (uint64_t)aligned_diff;
   if (buffer_size > SIZE_MAX) return -E2BIG;
   char* data = reinterpret_cast<char*>(
       mmap64(nullptr, buffer_size, PROT_READ, MAP_SHARED, fd, aligned_offset));
