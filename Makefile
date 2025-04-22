@@ -69,7 +69,7 @@ SRCS = \
 .PHONY: default all clean install
 
 default: all
-all: $(LIB_NAME) simg2img simg2simg img2simg append2simg
+all: $(SLIB) simg2img simg2simg img2simg append2simg
 
 install: all
 	install -d $(PREFIX)/bin $(PREFIX)/lib $(PREFIX)/include/sparse
@@ -77,20 +77,20 @@ install: all
 	install -m 0755 $(SLIB) $(PREFIX)/lib
 	install -m 0644 $(HEADERS) $(PREFIX)/include/sparse
 
-$(LIB_NAME): $(LIB_OBJS)
+$(SLIB): $(LIB_OBJS)
 		$(AR) rc $(SLIB) $(LIB_OBJS)
 		$(RANLIB) $(SLIB)
 
-simg2img: $(SIMG2IMG_SRCS) $(LIB_NAME)
+simg2img: $(SIMG2IMG_SRCS) $(SLIB)
 		$(CXX) $(CPPFLAGS) $(LIB_INCS) -o simg2img $< $(LDFLAGS)
 
-simg2simg: $(SIMG2SIMG_SRCS) $(LIB_NAME)
+simg2simg: $(SIMG2SIMG_SRCS) $(SLIB)
 		$(CXX) $(CPPFLAGS) $(LIB_INCS) -o simg2simg $< $(LDFLAGS)
 
-img2simg: $(IMG2SIMG_SRCS) $(LIB_NAME)
+img2simg: $(IMG2SIMG_SRCS) $(SLIB)
 		$(CXX) $(CPPFLAGS) $(LIB_INCS) -o img2simg $< $(LDFLAGS)
 
-append2simg: $(APPEND2SIMG_SRCS) $(LIB_NAME)
+append2simg: $(APPEND2SIMG_SRCS) $(SLIB)
 		$(CXX) $(CPPFLAGS) $(LIB_INCS) -o append2simg $< $(LDFLAGS)
 
 %.o: %.cpp .depend
