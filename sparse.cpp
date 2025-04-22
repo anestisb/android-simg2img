@@ -28,7 +28,7 @@
 #include "sparse_format.h"
 
 struct sparse_file* sparse_file_new(unsigned int block_size, int64_t len) {
-  struct sparse_file* s = reinterpret_cast<sparse_file*>(calloc(sizeof(struct sparse_file), 1));
+  struct sparse_file* s = reinterpret_cast<sparse_file*>(calloc(1, sizeof(struct sparse_file)));
   if (!s) {
     return nullptr;
   }
