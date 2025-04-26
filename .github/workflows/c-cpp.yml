@@ -1,0 +1,55 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: make
+      run: make
+
+    - name: Create artifacts directory
+      run: mkdir -p bin
+
+    - name: Move artifacts
+      run: mv append2simg bin/append2simg && mv simg2img bin/simg2img && mv simg2simg bin/simg2simg
+
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        path: bin/
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        install: mingw-w64-ucrt-x86_64-toolchain
+
+    - name: Add MSYS2 to PATH
+      run: echo "::add-path::C:\msys64\ucrt64\bin" >> $GITHUB_ENV
+
+    - name: Run make
+      run: |
+        mingw32-make
+
+    - name: Create artifacts directory
+      run: mkdir bin
+
+    - name: Move artifacts
+      run: move append2simg.exe bin/append2simg.exe && move simg2img.exe bin/simg2img.exe && move simg2simg.exe bin/simg2simg.exe
+
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        path: bin/
